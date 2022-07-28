@@ -38,7 +38,7 @@ public slots:
 
     // XML code example : https://gist.github.com/lamprosg/2133804
     void enregistrement();
-    //void importation();
+    void importation();
 
 
 private:

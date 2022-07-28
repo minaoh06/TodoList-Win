@@ -27,6 +27,7 @@ void TodoList::setEvent(){
     });
 
     //Enregistrement
+    QObject::connect(ui->boutonEnregistrer, &QPushButton::clicked, this, &TodoList::enregistrement);
 
     // Fermer
     QObject::connect(ui->boutonFermer, &QPushButton::clicked, this, &QApplication::quit);
@@ -57,7 +58,7 @@ void TodoList::ajoutItemListPrincipale() {
 void TodoList::ajoutItemListSecondaire() {
     QListWidgetItem *item = new QListWidgetItem(QInputDialog::getText(this, "Nom de la tache", "Tache :"));
     item->setCheckState(Qt::Unchecked);
-    listPrincipal.append(*item);
+    listSecondaire.append(*item);
     ui->listWidgetSecondaire->addItem(item);
 }
 
@@ -83,8 +84,86 @@ void TodoList::suppressionItemsListSecondaire() {
 }
 
 void TodoList::enregistrement() {
-    QString file = QFileDialog::getSaveFileName(this, "Enregistrement Xml", ".", "Xml files (*.xml)");
+    // Récupération du file name
+    QString fileName = QFileDialog::getSaveFileName(this, "Enregistrement Xml", ".", "Xml files (*.xml)");
+    QFile file(fileName);
 
+    if (file.open(QIODevice::WriteOnly)){
+
+        QXmlStreamWriter xmlWriter(&file);
+        xmlWriter.setAutoFormatting(true);
+        xmlWriter.writeStartDocument();
+
+        //Principale
+        if (listPrincipal.size() > 0){
+            xmlWriter.writeStartElement("Principale");
+            for(qsizetype i = 0; i < listPrincipal.size(); i++){
+                xmlWriter.writeStartElement("item");
+
+                xmlWriter.writeTextElement("Titre", listPrincipal.at(i).text());
+                // CheckState
+                switch (ui->listWidgetPrincipale->item(i)->checkState()) {
+                case Qt::Checked:
+                    xmlWriter.writeTextElement("CheckState", "Checked");
+                    break;
+                case Qt::PartiallyChecked:
+                    xmlWriter.writeTextElement("CheckState", "PartiallyChecked");
+                    break;
+                default:
+                    xmlWriter.writeTextElement("CheckState", "LOL");
+                    break;
+                }
+
+                xmlWriter.writeEndElement();
+            }
+            xmlWriter.writeEndElement();
+        }
+
+        if (listSecondaire.size() > 0){
+            xmlWriter.writeStartElement("Secondaire");
+            for(qsizetype i = 0; i < listSecondaire.size(); i++){
+                xmlWriter.writeStartElement("item");
+
+                xmlWriter.writeTextElement("Titre", listSecondaire.at(i).text());
+                // CheckState
+                switch (ui->listWidgetSecondaire->item(i)->checkState()) {
+                case Qt::Checked:
+                    xmlWriter.writeTextElement("CheckState", "Checked");
+                    break;
+                case Qt::PartiallyChecked:
+                    xmlWriter.writeTextElement("CheckState", "PartiallyChecked");
+                    break;
+                case Qt::Unchecked:
+                    xmlWriter.writeTextElement("CheckState", "Unchecked");
+                    break;
+                default:
+                    xmlWriter.writeTextElement("CheckState", "lol");
+                    break;
+                }
+
+                xmlWriter.writeEndElement();
+            }
+            xmlWriter.writeEndElement();
+        }
+
+        xmlWriter.writeEndDocument();
+    }
+}
+
+void TodoList::importation() {
+
+    QString fileName = QFileDialog::getOpenFileName(this, "Enregistrement Xml", ".", "Xml files (*.xml)");
+    QFile file(fileName);
+
+    if (file.open(QFile::ReadOnly | QFile::Text)){
+
+        QXmlStreamReader xmlReader(&file);
+        xmlReader.readNext();
+
+        while(!xmlReader.atEnd()){
+
+        }
+    }
 }
 
 TodoList::~TodoList()
