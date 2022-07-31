@@ -29,6 +29,9 @@ void TodoList::setEvent(){
     //Enregistrement
     QObject::connect(ui->boutonEnregistrer, &QPushButton::clicked, this, &TodoList::enregistrement);
 
+    //Ouvrir
+    QObject::connect(ui->boutonOuvrir, &QPushButton::clicked, this, &TodoList::importation);
+
     // Fermer
     QObject::connect(ui->boutonFermer, &QPushButton::clicked, this, &QApplication::quit);
 }
@@ -96,21 +99,24 @@ void TodoList::enregistrement() {
 
         //Principale
         if (listPrincipal.size() > 0){
-            xmlWriter.writeStartElement("Principale");
+            xmlWriter.writeStartElement("PRINCIPALE");
             for(qsizetype i = 0; i < listPrincipal.size(); i++){
-                xmlWriter.writeStartElement("item");
+                xmlWriter.writeStartElement("ITEM");
 
-                xmlWriter.writeTextElement("Titre", listPrincipal.at(i).text());
+                xmlWriter.writeTextElement("TITRE", listPrincipal.at(i).text());
                 // CheckState
                 switch (ui->listWidgetPrincipale->item(i)->checkState()) {
                 case Qt::Checked:
-                    xmlWriter.writeTextElement("CheckState", "Checked");
+                    xmlWriter.writeTextElement("CHECKSTATE", "Checked");
                     break;
                 case Qt::PartiallyChecked:
-                    xmlWriter.writeTextElement("CheckState", "PartiallyChecked");
+                    xmlWriter.writeTextElement("CHECKSTATE", "PartiallyChecked");
+                    break;
+                case Qt::Unchecked:
+                    xmlWriter.writeTextElement("CHECKSTATE", "Unchecked");
                     break;
                 default:
-                    xmlWriter.writeTextElement("CheckState", "LOL");
+                    xmlWriter.writeTextElement("CHECKSTATE", "lol");
                     break;
                 }
 
@@ -120,24 +126,24 @@ void TodoList::enregistrement() {
         }
 
         if (listSecondaire.size() > 0){
-            xmlWriter.writeStartElement("Secondaire");
+            xmlWriter.writeStartElement("SECONDAIRE");
             for(qsizetype i = 0; i < listSecondaire.size(); i++){
-                xmlWriter.writeStartElement("item");
+                xmlWriter.writeStartElement("ITEM");
 
-                xmlWriter.writeTextElement("Titre", listSecondaire.at(i).text());
+                xmlWriter.writeTextElement("TITRE", listSecondaire.at(i).text());
                 // CheckState
                 switch (ui->listWidgetSecondaire->item(i)->checkState()) {
                 case Qt::Checked:
-                    xmlWriter.writeTextElement("CheckState", "Checked");
+                    xmlWriter.writeTextElement("CHECKSTATE", "Checked");
                     break;
                 case Qt::PartiallyChecked:
-                    xmlWriter.writeTextElement("CheckState", "PartiallyChecked");
+                    xmlWriter.writeTextElement("CHECKSTATE", "PartiallyChecked");
                     break;
                 case Qt::Unchecked:
-                    xmlWriter.writeTextElement("CheckState", "Unchecked");
+                    xmlWriter.writeTextElement("CHECKSTATE", "Unchecked");
                     break;
                 default:
-                    xmlWriter.writeTextElement("CheckState", "lol");
+                    xmlWriter.writeTextElement("CHECKSTATE", "lol");
                     break;
                 }
 
@@ -157,11 +163,29 @@ void TodoList::importation() {
 
     if (file.open(QFile::ReadOnly | QFile::Text)){
 
-        QXmlStreamReader xmlReader(&file);
+        QXmlStreamReader xmlReader;
+        xmlReader.setDevice(&file);
+
         xmlReader.readNext();
+        qDebug() << xmlReader.name();
 
         while(!xmlReader.atEnd()){
+            xmlReader.readNext();
 
+            if (xmlReader.name().toString() == "PRINCIPALE") {
+                while (!xmlReader.atEnd()) {
+                    qDebug() << xmlReader.name();
+                    xmlReader.readNext();
+                }
+            } else if (xmlReader.name().toString() == "SECONDAIRE") {
+                while (!xmlReader.atEnd()) {
+                    qDebug() << xmlReader.name();
+                    xmlReader.readNext();
+                }
+            } else {
+                xmlReader.readNext();
+                break;
+            }
         }
     }
 }
