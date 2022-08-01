@@ -41,5 +41,6 @@ public slots:
 
 private:
     Ui::TodoList *ui;
+    QDir dir;
 };
 #endif // TODOLIST_H

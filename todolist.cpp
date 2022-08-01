@@ -5,6 +5,11 @@ TodoList::TodoList(QWidget *parent) : QWidget(parent), ui(new Ui::TodoList)
 {
     //Constructiuon de la fenetre avec tout les widgets a l'intérieur
     ui->setupUi(this);
+    dir = QDir(QDir::homePath() + "/Documents/TodoList");
+    if (!dir.exists()){
+        QDir dirTmp = QDir(QDir::homePath() + "/Documents");
+        dirTmp.mkdir("TodoList");
+    }
 
     TodoList::setEvent();
 }
@@ -70,7 +75,7 @@ void TodoList::suppressionItemsListSecondaire() {
 
 void TodoList::enregistrement() {
     // Récupération du file name
-    QString fileName = QFileDialog::getSaveFileName(this, "Enregistrement Xml", ".", "Xml files (*.xml)");
+    QString fileName = QFileDialog::getSaveFileName(this, "Enregistrement Xml", QDir::homePath() + "/Documents/TodoList", "Xml files (*.xml)");
     QFile file(fileName);
 
     if (file.open(QIODevice::WriteOnly)){
@@ -141,7 +146,7 @@ void TodoList::enregistrement() {
 
 void TodoList::importation() {
 
-    QString fileName = QFileDialog::getOpenFileName(this, "Enregistrement Xml", ".", "Xml files (*.xml)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Enregistrement Xml", QDir::homePath() + "/Documents/TodoList", "Xml files (*.xml)");
     QFile file(fileName);
 
     if (file.open(QFile::ReadOnly | QFile::Text)){
