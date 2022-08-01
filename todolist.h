@@ -2,12 +2,12 @@
 #define TODOLIST_H
 
 #include <QWidget>
-#include <QListWidgetItem>
-#include <QMenuBar>
-#include <QInputDialog>
-#include <QFileDialog>
-#include <QXmlStreamWriter>
 #include <QApplication>
+#include <QListWidgetItem>
+#include <QInputDialog>
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
+#include <QFileDialog>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class TodoList; }
@@ -24,8 +24,6 @@ public:
 
     // Fenetre
     void setEvent();
-    void reloadListPrincipale();
-    void reloadListSecondaire();
 
 public slots:
     // Structures de données
@@ -36,15 +34,12 @@ public slots:
     void suppressionItemsListSecondaire();
 
 
-    // XML code example : https://gist.github.com/lamprosg/2133804
+    // XML code example
     void enregistrement();
     void importation();
 
 
 private:
     Ui::TodoList *ui;
-
-    QList<QListWidgetItem> listPrincipal;
-    QList<QListWidgetItem> listSecondaire;
 };
 #endif // TODOLIST_H

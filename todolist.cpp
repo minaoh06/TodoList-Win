@@ -36,32 +36,16 @@ void TodoList::setEvent(){
     QObject::connect(ui->boutonFermer, &QPushButton::clicked, this, &QApplication::quit);
 }
 
-void TodoList::reloadListPrincipale() {
-    ui->listWidgetPrincipale->clear();
-    for(qsizetype i = 0; i < listPrincipal.size(); i++) {
-        ui->listWidgetPrincipale->addItem(new QListWidgetItem(listPrincipal.takeAt(i)));
-    }
-}
-
-void TodoList::reloadListSecondaire() {
-    ui->listWidgetPrincipale->clear();
-    for(qsizetype i = 0; i < listSecondaire.size(); i++) {
-        ui->listWidgetPrincipale->addItem(new QListWidgetItem(listSecondaire.takeAt(i)));
-    }
-}
-
 // Ajout
 void TodoList::ajoutItemListPrincipale() {
     QListWidgetItem *item = new QListWidgetItem(QInputDialog::getText(this, "Nom de la tache", "Tache :"));
     item->setCheckState(Qt::Unchecked);
-    listPrincipal.append(*item);
     ui->listWidgetPrincipale->addItem(item);
 }
 
 void TodoList::ajoutItemListSecondaire() {
     QListWidgetItem *item = new QListWidgetItem(QInputDialog::getText(this, "Nom de la tache", "Tache :"));
     item->setCheckState(Qt::Unchecked);
-    listSecondaire.append(*item);
     ui->listWidgetSecondaire->addItem(item);
 }
 
@@ -70,7 +54,6 @@ void TodoList::suppressionItemsListPrincipale() {
     QList listSuppression = ui->listWidgetPrincipale->selectedItems();
     if (!listSuppression.isEmpty()) {
         for (auto x : listSuppression) {
-            listPrincipal.remove(ui->listWidgetPrincipale->row(x));
             delete ui->listWidgetPrincipale->takeItem(ui->listWidgetPrincipale->row(x));
         }
     }
@@ -80,7 +63,6 @@ void TodoList::suppressionItemsListSecondaire() {
     QList listSuppression = ui->listWidgetSecondaire->selectedItems();
     if (!listSuppression.isEmpty()){
         for (auto x : listSuppression) {
-            listSecondaire.remove(ui->listWidgetSecondaire->row(x));
             delete ui->listWidgetSecondaire->takeItem(ui->listWidgetSecondaire->row(x));
         }
     }
@@ -96,14 +78,15 @@ void TodoList::enregistrement() {
         QXmlStreamWriter xmlWriter(&file);
         xmlWriter.setAutoFormatting(true);
         xmlWriter.writeStartDocument();
+        xmlWriter.writeStartElement("TODO");
 
         //Principale
-        if (listPrincipal.size() > 0){
+        if (ui->listWidgetPrincipale->count() > 0){
             xmlWriter.writeStartElement("PRINCIPALE");
-            for(qsizetype i = 0; i < listPrincipal.size(); i++){
+            for(qsizetype i = 0; i < ui->listWidgetPrincipale->count(); i++){
                 xmlWriter.writeStartElement("ITEM");
 
-                xmlWriter.writeTextElement("TITRE", listPrincipal.at(i).text());
+                xmlWriter.writeTextElement("TITRE", ui->listWidgetPrincipale->item(i)->text());
                 // CheckState
                 switch (ui->listWidgetPrincipale->item(i)->checkState()) {
                 case Qt::Checked:
@@ -125,12 +108,12 @@ void TodoList::enregistrement() {
             xmlWriter.writeEndElement();
         }
 
-        if (listSecondaire.size() > 0){
+        if (ui->listWidgetSecondaire->count() > 0){
             xmlWriter.writeStartElement("SECONDAIRE");
-            for(qsizetype i = 0; i < listSecondaire.size(); i++){
+            for(qsizetype i = 0; i < ui->listWidgetSecondaire->count(); i++){
                 xmlWriter.writeStartElement("ITEM");
 
-                xmlWriter.writeTextElement("TITRE", listSecondaire.at(i).text());
+                xmlWriter.writeTextElement("TITRE", ui->listWidgetSecondaire->item(i)->text());
                 // CheckState
                 switch (ui->listWidgetSecondaire->item(i)->checkState()) {
                 case Qt::Checked:
@@ -151,7 +134,7 @@ void TodoList::enregistrement() {
             }
             xmlWriter.writeEndElement();
         }
-
+        xmlWriter.writeEndElement();
         xmlWriter.writeEndDocument();
     }
 }
@@ -166,26 +149,73 @@ void TodoList::importation() {
         QXmlStreamReader xmlReader;
         xmlReader.setDevice(&file);
 
-        xmlReader.readNext();
-        qDebug() << xmlReader.name();
 
-        while(!xmlReader.atEnd()){
+        while (xmlReader.name().toString() != "TODO") {
             xmlReader.readNext();
+        }
+
+        while(!xmlReader.isEndDocument()){
+            xmlReader.readNextStartElement();
 
             if (xmlReader.name().toString() == "PRINCIPALE") {
-                while (!xmlReader.atEnd()) {
-                    qDebug() << xmlReader.name();
-                    xmlReader.readNext();
+                xmlReader.readNextStartElement();
+                QString titre, check;
+                while(xmlReader.name().toString() != "PRINCIPALE"){
+                    if (xmlReader.name().toString() == "ITEM"){
+                       // Selection des éléments
+                        xmlReader.readNextStartElement();
+                        titre = xmlReader.readElementText();
+                        xmlReader.readNextStartElement();
+                        check = xmlReader.readElementText();
+                        xmlReader.readNextStartElement();
+                        xmlReader.readNextStartElement();
+                        qDebug() << titre << check;
+
+                        // Ajout de l'item dans la liste
+                        QListWidgetItem *item = new QListWidgetItem(titre);
+                        if (check == "Checked"){
+                            item->setCheckState(Qt::Checked);
+                        } else if (check == "Unchecked") {
+                            item->setCheckState(Qt::Unchecked);
+                        } else {
+                            item->setCheckState(Qt::PartiallyChecked);
+                        }
+                        ui->listWidgetPrincipale->addItem(item);
+                    }
                 }
-            } else if (xmlReader.name().toString() == "SECONDAIRE") {
-                while (!xmlReader.atEnd()) {
-                    qDebug() << xmlReader.name();
-                    xmlReader.readNext();
+            }
+            else if (xmlReader.name().toString() == "SECONDAIRE") {
+                xmlReader.readNextStartElement();
+                QString titre, check;
+                while(xmlReader.name().toString() != "SECONDAIRE"){
+                    if (xmlReader.name().toString() == "ITEM"){
+                        // Selection des éléments
+                        xmlReader.readNextStartElement();
+                        titre = xmlReader.readElementText();
+                        xmlReader.readNextStartElement();
+                        check = xmlReader.readElementText();
+                        xmlReader.readNextStartElement();
+                        xmlReader.readNextStartElement();
+                        qDebug() << titre << check;
+
+                        // Ajout de l'item dans la liste
+                        QListWidgetItem *item = new QListWidgetItem(titre);
+                        if (check == "Checked"){
+                            item->setCheckState(Qt::Checked);
+                        } else if (check == "Unchecked") {
+                            item->setCheckState(Qt::Unchecked);
+                        } else {
+                            item->setCheckState(Qt::PartiallyChecked);
+                        }
+                        ui->listWidgetSecondaire->addItem(item);
+                    }
                 }
-            } else {
+            }
+            else {
                 xmlReader.readNext();
                 break;
             }
+            qDebug() << xmlReader.name();
         }
     }
 }
