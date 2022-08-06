@@ -26,15 +26,9 @@ public:
     void setEvent();
 
 public slots:
-    // Structures de données
     void ajoutItemListPrincipale();
-    void ajoutItemListSecondaire();
-
     void suppressionItemsListPrincipale();
-    void suppressionItemsListSecondaire();
 
-
-    // XML code example
     void enregistrement();
     void importation();
 
