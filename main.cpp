@@ -1,12 +1,11 @@
-#include "todolist.h"
+#include "maintodolist.h"
 
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    TodoList w;
-    w.setFixedSize(711,546);
+    MainTodoList w;
     w.show();
     return a.exec();
 }

@@ -10,12 +10,15 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
+    maintodolist.cpp \
     todolist.cpp
 
 HEADERS += \
+    maintodolist.h \
     todolist.h
 
 FORMS += \
+    maintodolist.ui \
     todolist.ui
 
 # Default rules for deployment.
