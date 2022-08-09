@@ -10,16 +10,13 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    maintodolist.cpp \
-    todolist.cpp
+    maintodolist.cpp
 
 HEADERS += \
-    maintodolist.h \
-    todolist.h
+    maintodolist.h
 
 FORMS += \
-    maintodolist.ui \
-    todolist.ui
+    maintodolist.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -1,8 +1,12 @@
 #ifndef MAINTODOLIST_H
 #define MAINTODOLIST_H
 
-#include "todolist.h"
 #include <QMainWindow>
+#include <QDir>
+#include <QInputDialog>
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
+#include <QFileDialog>
 
 namespace Ui {
 class MainTodoList;
@@ -17,9 +21,16 @@ public:
     ~MainTodoList();
     void setEvent();
 
+public slots:
+    void ajoutItemListPrincipale();
+    void suppressionItemsListPrincipale();
+
+    void enregistrement();
+    void importation();
+
 private:
     Ui::MainTodoList *ui;
-    TodoList *todo;
+    QDir dir;
 };
 
 #endif // MAINTODOLIST_H
