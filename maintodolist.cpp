@@ -4,6 +4,13 @@
 MainTodoList::MainTodoList(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainTodoList)
 {
     ui->setupUi(this);
+
+    dir = QDir(QDir::homePath() + "/Documents/TodoList");
+    if (!dir.exists()){
+        QDir dirTmp = QDir(QDir::homePath() + "/Documents");
+        dirTmp.mkdir("TodoList");
+    }
+
     setEvent();
 }
 
@@ -18,6 +25,15 @@ void MainTodoList::setEvent() {
 
     //Suppression d'un élément
     QObject::connect(ui->boutonMoinsPrincipale, &QPushButton::clicked, this, &MainTodoList::suppressionItemsListPrincipale);
+
+    //Quitter
+    QObject::connect(ui->actionFermer, &QAction::triggered, this, &QApplication::quit);
+
+    //Enregistrer
+    QObject::connect(ui->actionEnregistrer, &QAction::triggered, this, &MainTodoList::enregistrement);
+
+    //Ouvrir
+    QObject::connect(ui->actionOpen, &QAction::triggered, this, &MainTodoList::importation);
 }
 
 void MainTodoList::ajoutItemListPrincipale() {
@@ -38,7 +54,7 @@ void MainTodoList::suppressionItemsListPrincipale() {
 
 void MainTodoList::enregistrement() {
     // Récupération du file name
-    QString fileName = QFileDialog::getSaveFileName(this, "Enregistrement Xml", QDir::homePath() + "/Documents/MainTodoList", "Xml files (*.xml)");
+    QString fileName = QFileDialog::getSaveFileName(this, "Enregistrement Xml", QDir::homePath() + "/Documents/TodoList/", "Xml files (*.xml)");
     QFile file(fileName);
 
     if (file.open(QIODevice::WriteOnly)){
@@ -82,7 +98,7 @@ void MainTodoList::enregistrement() {
 
 void MainTodoList::importation() {
 
-    QString fileName = QFileDialog::getOpenFileName(this, "Enregistrement Xml", QDir::homePath() + "/Documents/MainTodoList", "Xml files (*.xml)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Enregistrement Xml", QDir::homePath() + "/Documents/TodoList/", "Xml files (*.xml)");
     QFile file(fileName);
 
     if (file.open(QFile::ReadOnly | QFile::Text)){
