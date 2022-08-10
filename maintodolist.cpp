@@ -16,7 +16,7 @@ MainTodoList::MainTodoList(QWidget *parent) : QMainWindow(parent), ui(new Ui::Ma
 
 MainTodoList::~MainTodoList()
 {
-
+    delete ui;
 }
 
 void MainTodoList::setEvent() {

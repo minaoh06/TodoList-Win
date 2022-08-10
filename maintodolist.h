@@ -7,6 +7,7 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QFileDialog>
+#include <QListWidgetItem>
 
 namespace Ui {
 class MainTodoList;
