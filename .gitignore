@@ -1,2 +1,4 @@
 
-TodoList.pro.user
+.vscode/*
+.xmake/*
+build/*
